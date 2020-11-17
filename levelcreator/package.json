@@ -1,0 +1,21 @@
+{
+  "name": "levelcreator",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "babylonjs": "^4.2.0",
+    "core-js": "^3.7.0",
+    "vue": "^3.0.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.5.9",
+    "@vue/cli-plugin-typescript": "^4.5.9",
+    "@vue/cli-service": "^4.5.9",
+    "@vue/compiler-sfc": "^3.0.2",
+    "typescript": "^3.9.7"
+  }
+}
