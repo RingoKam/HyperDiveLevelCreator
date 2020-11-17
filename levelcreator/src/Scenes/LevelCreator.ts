@@ -1,11 +1,12 @@
 import * as BABYLON from "babylonjs";
 
+const gridSize = 5;
+
 export default (canvas : any) => {
     // Load the 3D engine
     var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
     // CreateScene function that creates and return the scene
     var createScene = function () {
-        // Create a basic BJS Scene object
         var scene = new BABYLON.Scene(engine);
         // Create a FreeCamera, and set its position to {x: 0, y: 5, z: -10}
         var camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5, -10), scene);
@@ -15,12 +16,9 @@ export default (canvas : any) => {
         camera.attachControl(canvas, false);
         // Create a basic light, aiming 0, 1, 0 - meaning, to the sky
         var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, 1, 0), scene);
-        // Create a built-in "sphere" shape; its constructor takes 6 params: name, segment, diameter, scene, updatable, sideOrientation
-        var sphere = BABYLON.Mesh.CreateSphere('sphere1', 16, 2, scene, false, BABYLON.Mesh.FRONTSIDE);
-        // Move the sphere upward 1/2 of its height
-        sphere.position.y = 1;
-        // Create a built-in "ground" shape; its constructor takes 6 params : name, width, height, subdivision, scene, updatable
-        var ground = BABYLON.Mesh.CreateGround('ground1', 6, 6, 2, scene, false);
+        
+        createGrid(scene, 0);
+
         // Return the created scene
         return scene;
     }
@@ -34,4 +32,27 @@ export default (canvas : any) => {
     window.addEventListener('resize', function () {
         engine.resize();
     });
+}
+
+function createGrid(scene : BABYLON.Scene, height : number) {
+    let grid :any[] = [];
+    for (let x = 0; x < gridSize; ++x) {
+		grid[x] = grid[x] || [];
+        for (let z = 0; z < gridSize; ++z) {
+            var box = BABYLON.Mesh.CreateBox("box", 0.5 , scene);
+            box.position.copyFromFloats(x - gridSize / 2, 0.1 , z - gridSize / 2);
+            var mat = new BABYLON.StandardMaterial("mat", scene);
+            // mat.diffuseColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+            box.material = mat;
+
+            box.actionManager = new BABYLON.ActionManager(scene);
+            box.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, () => {
+                console.log(x,z);
+                
+            }));
+
+            grid[x][z] = box;
+        }
+	}
+
 }
