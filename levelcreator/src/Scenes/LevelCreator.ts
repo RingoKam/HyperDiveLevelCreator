@@ -56,6 +56,8 @@ function createGrid(scene : BABYLON.Scene, height : number) {
                 const isSelected = box.material?.name === "selected";
                 if(!isSelected) {
                     box.material = scene.getMaterialByName("selected");
+                } else {
+                    box.material = scene.getMaterialByName("no-selected");
                 }
             }));
 
