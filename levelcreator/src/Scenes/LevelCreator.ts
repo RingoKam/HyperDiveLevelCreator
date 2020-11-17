@@ -17,6 +17,13 @@ export default (canvas : any) => {
         // Create a basic light, aiming 0, 1, 0 - meaning, to the sky
         var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, 1, 0), scene);
         
+        var mat = new BABYLON.StandardMaterial("no-selected", scene);
+        mat.diffuseColor = new BABYLON.Color3(255, 255, 255);
+        mat.alpha = 0.5;
+
+        var mat2 = new BABYLON.StandardMaterial("selected", scene);
+        mat2.diffuseColor = new BABYLON.Color3(255, 1, 1);
+
         createGrid(scene, 0);
 
         // Return the created scene
@@ -39,16 +46,17 @@ function createGrid(scene : BABYLON.Scene, height : number) {
     for (let x = 0; x < gridSize; ++x) {
 		grid[x] = grid[x] || [];
         for (let z = 0; z < gridSize; ++z) {
-            var box = BABYLON.Mesh.CreateBox("box", 0.5 , scene);
+            let box = BABYLON.Mesh.CreateBox("box", 0.5 , scene);
             box.position.copyFromFloats(x - gridSize / 2, 0.1 , z - gridSize / 2);
-            var mat = new BABYLON.StandardMaterial("mat", scene);
-            // mat.diffuseColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
-            box.material = mat;
+            box.material = scene.getMaterialByName("no-selected");
 
             box.actionManager = new BABYLON.ActionManager(scene);
             box.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, () => {
                 console.log(x,z);
-                
+                const isSelected = box.material?.name === "selected";
+                if(!isSelected) {
+                    box.material = scene.getMaterialByName("selected");
+                }
             }));
 
             grid[x][z] = box;
