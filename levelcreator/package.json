@@ -8,12 +8,11 @@
   },
   "dependencies": {
     "babylonjs": "^4.2.0",
+    "babylonjs-gui": "^4.2.0",
     "core-js": "^3.7.0",
     "lodash": "^4.17.20",
     "v-jsoneditor": "^1.4.2",
-    "vue": "^3.0.2",
-    "vue-json-editor": "^1.4.3",
-    "vue-prism-editor": "^2.0.0-alpha.2"
+    "vue": "^3.0.2"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.165",

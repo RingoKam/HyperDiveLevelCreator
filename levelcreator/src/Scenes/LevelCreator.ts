@@ -1,4 +1,6 @@
 import * as BABYLON from "babylonjs";
+import * as GUI from "babylonjs-gui";
+
 const gridSize = 5;
 
 export default (canvas : any, context: any) => {
@@ -10,7 +12,6 @@ export default (canvas : any, context: any) => {
         // Create a FreeCamera, and set its position to {x: 0, y: 5, z: -10}
         var camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5, -10), scene);
         // Target the camera to scene origin
-        camera.setTarget(BABYLON.Vector3.Zero());
         camera.position = new BABYLON.Vector3(0.5, 9, -17.8);
         camera.rotation = new BABYLON.Vector3(0.4653956558758062, -0.07168276100777128, 0);
 
@@ -28,7 +29,11 @@ export default (canvas : any, context: any) => {
 
         const { setObstacles, levelJson} = context;
         let height = 0;
+        let heightList = [];
+        let currentHeight = 0;
         levelJson.waves.forEach((wave: any, i: number) => {
+            console.log("i was called");
+            heightList.push(height);
             const defintion = Object.entries(wave.obstacles).reduce((a, [type, obstacle]) => {
                 const positionsDef = (<any[]> obstacle).reduce((acc, cur) => {
                     const { x, y } = cur;
@@ -43,7 +48,37 @@ export default (canvas : any, context: any) => {
             height += wave.nextSpawnHeight;
         });
 
+        //Setup camera control GUI
+        const guiMenu = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+        const upButton = createUpOrDownButton(true);
+        const downButton = createUpOrDownButton(false);
+        
+        upButton.onPointerClickObservable.add(() => {
+            const next = heightList[currentHeight - 1];
+            if(next === undefined || next < 0) {
+                return;
+            }
+            currentHeight -= 1;
+            setCameraPosition(camera, next);
+        })
 
+        downButton.onPointerClickObservable.add(() => {
+            const next = heightList[currentHeight + 1];
+            if(next === undefined || next < 0) {
+                console.warn("ops...", next)
+                return;
+            }
+            currentHeight += 1;
+            setCameraPosition(camera, next);
+        })
+
+        guiMenu.addControl(upButton);
+        guiMenu.addControl(downButton);
+
+        //Setup Save button
+        
+
+        // scene.debugLayer.show()
 
         // Return the created scene
         return scene;
@@ -51,13 +86,25 @@ export default (canvas : any, context: any) => {
     // call the createScene function
     var scene = createScene();
     // run the render loop
-    engine.runRenderLoop(function () {
+    engine.runRenderLoop(() => {
         scene.render();
     });
     // the canvas/window resize event handler
     window.addEventListener('resize', function () {
         engine.resize();
     });
+}
+
+function createUpOrDownButton(isUp : Boolean) {
+    var name = isUp ? "Up" : "Down";
+    const button = GUI.Button.CreateSimpleButton(name, name);
+    button.width = 0.2
+    button.height = "40px";
+    button.color = "white";
+    button.background = "black";
+    button.thickness = 0;
+    button.horizontalAlignment = isUp ? GUI.Container.HORIZONTAL_ALIGNMENT_RIGHT : GUI.Container.HORIZONTAL_ALIGNMENT_LEFT;
+    return button;
 }
 
 function createGrid(scene : BABYLON.Scene, height : number, definition: Object) {
@@ -92,6 +139,11 @@ function createGrid(scene : BABYLON.Scene, height : number, definition: Object) 
             grid[x][z] = box;
         }
 	}
+}
+
+function setCameraPosition(camera, height : number) {
+    camera.position = new BABYLON.Vector3(0.5, 9 + -height, -17.8);
+    camera.rotation = new BABYLON.Vector3(0.4653956558758062, -0.07168276100777128, 0);
 }
 
 function createKey(x,y) {
