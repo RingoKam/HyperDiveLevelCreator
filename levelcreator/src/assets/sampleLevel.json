@@ -1,0 +1,14 @@
+{
+    "env": "Wall",
+    "height": 250,
+    "offsetTop": 50,
+    "offsetBOttom": 50,
+    "waves": [
+        {
+            "nextSpawnHeight": 20,
+            "obstacles": {
+                "unbreakableBlock": [{ "x": 0, "y": 0 }]
+            }
+        }
+    ]
+}

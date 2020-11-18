@@ -13,13 +13,17 @@
 import { defineComponent } from "vue";
 import LevelCreator from "./components/LevelCreator.vue";
 import JsonEditor from "./components/JsonEditor.vue";
-
+import { useLevelProvider } from "./Providers/LevelProvider"
+import level from "./assets/sampleLevel";
 export default defineComponent({
   name: "App",
   components: {
     LevelCreator,
     JsonEditor
   },
+  setup() {
+    useLevelProvider(level);
+  }
 });
 </script>
 

@@ -1,8 +1,7 @@
 import * as BABYLON from "babylonjs";
-
 const gridSize = 5;
 
-export default (canvas : any) => {
+export default (canvas : any, context: any) => {
     // Load the 3D engine
     var engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
     // CreateScene function that creates and return the scene
@@ -12,6 +11,9 @@ export default (canvas : any) => {
         var camera = new BABYLON.FreeCamera('camera1', new BABYLON.Vector3(0, 5, -10), scene);
         // Target the camera to scene origin
         camera.setTarget(BABYLON.Vector3.Zero());
+        camera.position = new BABYLON.Vector3(0.5, 9, -17.8);
+        camera.rotation = new BABYLON.Vector3(0.4653956558758062, -0.07168276100777128, 0);
+
         // Attach the camera to the canvas
         camera.attachControl(canvas, false);
         // Create a basic light, aiming 0, 1, 0 - meaning, to the sky
@@ -21,10 +23,27 @@ export default (canvas : any) => {
         mat.diffuseColor = new BABYLON.Color3(255, 255, 255);
         mat.alpha = 0.5;
 
-        var mat2 = new BABYLON.StandardMaterial("selected", scene);
+        var mat2 = new BABYLON.StandardMaterial("breakable", scene);
         mat2.diffuseColor = new BABYLON.Color3(255, 1, 1);
 
-        createGrid(scene, 0);
+        const { setObstacles, levelJson} = context;
+        let height = 0;
+        levelJson.waves.forEach((wave: any, i: number) => {
+            const defintion = Object.entries(wave.obstacles).reduce((a, [type, obstacle]) => {
+                const positionsDef = (<any[]> obstacle).reduce((acc, cur) => {
+                    const { x, y } = cur;
+                    const key = createKey(x, y);
+                    acc[key] = type;
+                    return acc;
+                }, {});
+                return { ...a, ...positionsDef };
+            }, {})
+            console.log(defintion);
+            createGrid(scene, height, defintion);
+            height += wave.nextSpawnHeight;
+        });
+
+
 
         // Return the created scene
         return scene;
@@ -41,21 +60,30 @@ export default (canvas : any) => {
     });
 }
 
-function createGrid(scene : BABYLON.Scene, height : number) {
+function createGrid(scene : BABYLON.Scene, height : number, definition: Object) {
     let grid :any[] = [];
     for (let x = 0; x < gridSize; ++x) {
 		grid[x] = grid[x] || [];
         for (let z = 0; z < gridSize; ++z) {
             let box = BABYLON.Mesh.CreateBox("box", 0.5 , scene);
-            box.position.copyFromFloats(x - gridSize / 2, 0.1 , z - gridSize / 2);
-            box.material = scene.getMaterialByName("no-selected");
+            box.position.copyFromFloats(x - gridSize / 2, -height, z - gridSize / 2);
 
+            //Set Material
+            const key = createKey(x, z);
+            const def = definition[key]
+            if(def) {
+                box.material = scene.getMaterialByName("breakable");
+            } else {
+                box.material = scene.getMaterialByName("no-selected");
+            }
+
+            //Action
             box.actionManager = new BABYLON.ActionManager(scene);
             box.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, () => {
                 console.log(x,z);
-                const isSelected = box.material?.name === "selected";
-                if(!isSelected) {
-                    box.material = scene.getMaterialByName("selected");
+                const isSelected = box.material?.name === "no-selected";
+                if(isSelected) {
+                    box.material = scene.getMaterialByName("breakable");
                 } else {
                     box.material = scene.getMaterialByName("no-selected");
                 }
@@ -64,5 +92,9 @@ function createGrid(scene : BABYLON.Scene, height : number) {
             grid[x][z] = box;
         }
 	}
+}
 
+function createKey(x,y) {
+    const key = `${x},${y}`;
+    return key;
 }

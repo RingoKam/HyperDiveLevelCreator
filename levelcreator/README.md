@@ -1,4 +1,10 @@
-# levelcreator
+# HyperDive level creator
+> Vue 3 + BabylonJS 
+
+## Vue3 thoughts
+---
+1. How do I handle subscription that only start when a certain life cycle event has started? for example, i want to start watch() when the dom is mounted.
+
 
 ## Project setup
 ```
