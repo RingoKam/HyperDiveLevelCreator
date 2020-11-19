@@ -5,6 +5,7 @@ const COUNTER_CONTEXT = Symbol();
 
 export function useLevelProvider(initialValue : Object ) {
   let levelJson = reactive<any>(initialValue);
+  let blockType = ref<string>("unbreakable");
   
   const setJSON = (obj : Object) => {
       Object.entries(obj).forEach(([key, value]) => {
@@ -30,7 +31,13 @@ export function useLevelProvider(initialValue : Object ) {
     levelJson.waves.splice(level, 1);
   }
 
+  const changeBlockType = (newblockType: string) => {
+    blockType.value = newblockType;
+  }
+
   provide(COUNTER_CONTEXT, {
+    blockType,
+    changeBlockType,
     levelJson,
     setJSON,
     addNewWave,

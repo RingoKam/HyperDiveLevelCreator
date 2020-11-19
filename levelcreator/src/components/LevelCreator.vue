@@ -10,7 +10,7 @@
             </div> -->
             <label>Block Type: </label>
             <select>
-                <option value="unbreakableBlock">Unbreakable</option>
+                <option value="unbreakable">Unbreakable</option>
             </select>
         </div>
         <canvas ref="canvas"></canvas>

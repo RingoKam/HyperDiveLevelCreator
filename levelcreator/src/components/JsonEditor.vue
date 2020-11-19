@@ -1,34 +1,44 @@
 
 <template>
   <!-- need to find a better text editor -->
-  <textarea class="editor" :value="jsonString" @input="change"></textarea>
+  <div class="editor">
+    <div class="actions">
+      <button @click="save">Update</button>
+    </div>
+    <textarea class="editor-area" :value="jsonString" @input="change"></textarea>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
+import { defineComponent, computed, ref, watch } from "vue";
 import { debounce } from "lodash";
 
 import { useLevelContext } from "../Providers/LevelProvider";
 
 export default defineComponent({
   setup() {
-    const context : any = useLevelContext();
-    const jsonString = computed(() => {
-      return JSON.stringify(context["levelJson"], null, 4);
+    const context: any = useLevelContext();
+    let jsonString = ref<string>(JSON.stringify(context["levelJson"], null, 4));
+    watch(context["levelJson"], () => {
+      jsonString.value = JSON.stringify(context["levelJson"], null, 4);
     });
+
     const change = (event: any) => {
-      const jsonString = event.target.value;
+      jsonString.value = event.target.value;
+    };
+
+    const save = () => {
       try {
-        debounce(() => {
-          const json = JSON.parse(jsonString);
-          context.setJSON(json);
-        }, 2000)() //wait for 2 second
+        const json = JSON.parse(jsonString.value);
+        context.setJSON(json);
       } catch (error) {
+        window.alert("invalid json");
         console.error(error);
       }
-    }
-    return { ...context, jsonString, change };
-  }
+    };
+
+    return { ...context, jsonString, change, save };
+  },
 });
 </script>
 
@@ -36,5 +46,12 @@ export default defineComponent({
 .editor {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
+
+.editor-area {
+  flex: 1 1 100%;
+}
+
 </style>

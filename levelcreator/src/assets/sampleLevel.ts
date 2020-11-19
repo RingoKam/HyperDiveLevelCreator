@@ -7,7 +7,7 @@ var level = {
         {
             "nextSpawnHeight": 20,
             "obstacles": {
-                "unbreakableBlock": [
+                "unbreakable": [
                     {
                         "x": 0,
                         "y": 0

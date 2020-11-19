@@ -31,6 +31,8 @@ export default (canvas : any, context: any) => {
         let height = 0;
         let heightList = [];
         let currentHeight = 0;
+
+        const localLevel = [];
         levelJson.waves.forEach((wave: any, i: number) => {
             console.log("i was called");
             heightList.push(height);
@@ -44,7 +46,7 @@ export default (canvas : any, context: any) => {
                 return { ...a, ...positionsDef };
             }, {})
             console.log(defintion);
-            createGrid(scene, height, defintion);
+            createGrid(scene, height, defintion, i, localLevel, context);
             height += wave.nextSpawnHeight;
         });
 
@@ -76,7 +78,32 @@ export default (canvas : any, context: any) => {
         guiMenu.addControl(downButton);
 
         //Setup Save button
-        
+        const saveButton = GUI.Button.CreateSimpleButton("Save", "Save");
+        saveButton.width = 0.2
+        saveButton.height = "40px";
+        saveButton.color = "white";
+        saveButton.background = "green";
+        saveButton.thickness = 0;
+        saveButton.top = -50;
+        saveButton.horizontalAlignment = GUI.Container.HORIZONTAL_ALIGNMENT_CENTER;
+        saveButton.verticalAlignment = GUI.Container.VERTICAL_ALIGNMENT_BOTTOM; 
+
+        saveButton.onPointerClickObservable.add(() => {
+            localLevel.forEach((wave, i) => {
+                const result = Object.entries(wave).reduce((a, c) => {
+                    const [pos, type] = <[string, any]> c; 
+                    const [x, y] = pos.split(",");
+                    if(a[type] === undefined) {
+                        a[type] = [];
+                    }
+                    a[type].push({ x, y});
+                    return a;
+                }, {})
+                context.setObstacles(i, result);
+            });
+        })
+
+        guiMenu.addControl(saveButton);
 
         // scene.debugLayer.show()
 
@@ -107,8 +134,9 @@ function createUpOrDownButton(isUp : Boolean) {
     return button;
 }
 
-function createGrid(scene : BABYLON.Scene, height : number, definition: Object) {
+function createGrid(scene : BABYLON.Scene, height : number, definition: Object, index: number, localLevel, context) {
     let grid :any[] = [];
+    localLevel[index] = definition;
     for (let x = 0; x < gridSize; ++x) {
 		grid[x] = grid[x] || [];
         for (let z = 0; z < gridSize; ++z) {
@@ -127,15 +155,16 @@ function createGrid(scene : BABYLON.Scene, height : number, definition: Object) 
             //Action
             box.actionManager = new BABYLON.ActionManager(scene);
             box.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, () => {
-                console.log(x,z);
                 const isSelected = box.material?.name === "no-selected";
                 if(isSelected) {
+                    const blockType = context.blockType.value;
                     box.material = scene.getMaterialByName("breakable");
+                    localLevel[index][key] = blockType;
                 } else {
                     box.material = scene.getMaterialByName("no-selected");
+                    delete localLevel[index][key];
                 }
             }));
-
             grid[x][z] = box;
         }
 	}
