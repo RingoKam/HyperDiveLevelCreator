@@ -3,9 +3,19 @@
   <!-- need to find a better text editor -->
   <div class="editor">
     <div class="actions">
-      <button @click="save">Update</button>
+      <div>
+        {{ remainingHeight }}
+      </div>  
+      <div>
+        <button @click="save">Update</button>
+        <button @click="exportFile">Export</button>
+      </div>
     </div>
-    <textarea class="editor-area" :value="jsonString" @input="change"></textarea>
+    <textarea
+      class="editor-area"
+      :value="jsonString"
+      @input="change"
+    ></textarea>
   </div>
 </template>
 
@@ -37,7 +47,19 @@ export default defineComponent({
       }
     };
 
-    return { ...context, jsonString, change, save };
+    const exportFile = () => {
+      const data = jsonString.value;
+      const blob = new Blob([data], { type: "text/plain" });
+      const e = document.createEvent("MouseEvents");
+      const a = document.createElement("a");
+      a.download = "test.json";
+      a.href = window.URL.createObjectURL(blob);
+      a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
+      e.initEvent("click", true, false);
+      a.dispatchEvent(e);
+    };
+
+    return { ...context, jsonString, change, save, exportFile };
   },
 });
 </script>
@@ -54,4 +76,8 @@ export default defineComponent({
   flex: 1 1 100%;
 }
 
+.actions {
+  display: flex;
+  justify-content: space-between;
+}
 </style>

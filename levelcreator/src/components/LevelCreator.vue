@@ -9,7 +9,8 @@
                 <input /> 
             </div> -->
             <label>Block Type: </label>
-            <select>
+            <select v-model="blockType">
+                <option value="breakable">Breakable</option>
                 <option value="unbreakable">Unbreakable</option>
             </select>
         </div>

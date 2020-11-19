@@ -1,9 +1,10 @@
 // src/composables/counter.js
-import { provide, inject, ref, reactive } from 'vue';
+import { provide, inject, ref, reactive, computed } from 'vue';
 
 const COUNTER_CONTEXT = Symbol();
 
 export function useLevelProvider(initialValue : Object ) {
+
   let levelJson = reactive<any>(initialValue);
   let blockType = ref<string>("unbreakable");
   
@@ -22,6 +23,14 @@ export function useLevelProvider(initialValue : Object ) {
         obstacles: []
       })
   }
+
+  const remainingHeight = computed(() => {
+    const height = levelJson.waves.reduce((a,c) => {
+      a += c.nextSpawnHeight;
+      return a; 
+    }, 0);
+    return `${height}/${levelJson.height}`
+  })
 
   const setObstacles = (level: number, obstacles: any) => {
       levelJson.waves[level].obstacles = obstacles;  
@@ -42,7 +51,8 @@ export function useLevelProvider(initialValue : Object ) {
     setJSON,
     addNewWave,
     setObstacles,
-    deleteWave
+    deleteWave,
+    remainingHeight
   });
 }
 
