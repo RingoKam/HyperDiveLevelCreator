@@ -1,63 +1,57 @@
 // src/composables/counter.js
+import { Level } from '@/Interfaces/Level';
 import { provide, inject, ref, reactive, computed } from 'vue';
 
-const COUNTER_CONTEXT = Symbol();
+const LEVEL_CONTEXT = Symbol();
 
-export function useLevelProvider(initialValue : Object ) {
+export class LevelProvider {
 
-  let levelJson = reactive<any>(initialValue);
-  let blockType = ref<string>("unbreakable");
-  
-  const setJSON = (obj : Object) => {
-      Object.entries(obj).forEach(([key, value]) => {
-          levelJson[key] = value;
-      })
+  public levelJson: Level
+
+  constructor(initialValue: Level) {
+    this.levelJson = reactive<Level>(initialValue);
+  }
+
+  public setJSON(obj: Object) {
+    Object.entries(obj).forEach(([key, value]) => {
+      this.levelJson[key] = value;
+    })
   };
 
-  function addNewWave (height: number | null) {
-      if(!height) {
-          height = 20;
-      }
-      levelJson["waves"].push({
-        nextSpawnHeight: height, 
-        obstacles: []
-      })
+  public addNewWave(height: number | null) {
+    if (!height) {
+      height = 20;
+    }
+    this.levelJson.waves.push({
+      nextSpawnHeight: height,
+      obstacles: {}
+    })
   }
 
-  const remainingHeight = computed(() => {
-    const height = levelJson.waves.reduce((a,c) => {
+  public remainingHeight = computed(() => {
+    const height = this.levelJson.waves.reduce((a, c) => {
       a += c.nextSpawnHeight;
-      return a; 
+      return a;
     }, 0);
-    return `${height}/${levelJson.height}`
+    return `${height}/${this.levelJson.height}`
   })
 
-  const setObstacles = (level: number, obstacles: any) => {
-      levelJson.waves[level].obstacles = obstacles;  
+  public setObstacles(level: number, obstacles: any) {
+    this.levelJson.waves[level].obstacles = obstacles;
   }
 
-  const deleteWave = (level: number) => {
-    levelJson.waves.splice(level, 1);
+  public deleteWave(level: number) {
+    this.levelJson.waves.splice(level, 1);
   }
-
-  const changeBlockType = (newblockType: string) => {
-    blockType.value = newblockType;
-  }
-
-  provide(COUNTER_CONTEXT, {
-    blockType,
-    changeBlockType,
-    levelJson,
-    setJSON,
-    addNewWave,
-    setObstacles,
-    deleteWave,
-    remainingHeight
-  });
 }
 
-export function useLevelContext() : any {
-  const context = inject<Object>(COUNTER_CONTEXT);
+export function useLevelProvider(initialValue: Level) {
+  const provider = new LevelProvider(initialValue);
+  provide(LEVEL_CONTEXT, provider);
+}
+
+export function useLevelContext(): any {
+  const context = inject<LevelProvider>(LEVEL_CONTEXT);
   if (!context) {
     throw new Error('Provider need context');
   }

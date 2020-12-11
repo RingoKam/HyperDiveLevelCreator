@@ -1,4 +1,4 @@
-var level = {
+var level  = {
     "env": "Wall",
     "height": 250,
     "offsetTop": 50,
@@ -9,8 +9,8 @@ var level = {
             "obstacles": {
                 "unbreakable": [
                     {
-                        "x": 0,
-                        "y": 0
+                        "x": "0",
+                        "y": "0"
                     }
                 ]
             }

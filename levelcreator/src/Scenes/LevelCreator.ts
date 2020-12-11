@@ -18,7 +18,6 @@ export default (canvas : any, context: any) => {
         // Attach the camera to the canvas
         camera.attachControl(canvas, false);
         // Create a basic light, aiming 0, 1, 0 - meaning, to the sky
-        var light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0, 1, 0), scene);
         
         var mat = new BABYLON.StandardMaterial("no-selected", scene);
         mat.diffuseColor = new BABYLON.Color3(255, 255, 255);
@@ -27,7 +26,7 @@ export default (canvas : any, context: any) => {
         var mat2 = new BABYLON.StandardMaterial("breakable", scene);
         mat2.diffuseColor = new BABYLON.Color3(255, 1, 1);
 
-        const { setObstacles, levelJson} = context;
+        const { setObstacles, levelJson } = context;
         let height = 0;
         let heightList = [];
         let currentHeight = 0;
